@@ -36,13 +36,13 @@ paths:
               description: Resource address
               example: "/api/v1/customers/019bbc17-9611-77df-ba51-a2290ca9d5ae"
         400:
-          description: Bad request
+          $ref: "#/components/responses/BadRequest"
         409:
-          description: Conflict
+          $ref: "#/components/responses/Conflict"
         422:
-          description: Unprocessable Entity
+          $ref: "#/components/responses/UnprocessableEntity"
         500:
-          description: Internal Server Error
+          $ref: "#/components/responses/InternalError"
 
     get:
       description: List customers
@@ -77,7 +77,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Customer"
         404:
-          description: Not Found
+         $ref: "#/components/responses/NotFound"
     put:
       parameters:
         - schema:
@@ -103,15 +103,15 @@ paths:
               schema:
                 $ref: "#/components/schemas/Customer"
         400:
-          description: Bad request
+          $ref: "#/components/responses/BadRequest"
         404:
-          description: Not Found
+          $ref: "#/components/responses/NotFound"
         409:
-          description: Conflict
+          $ref: "#/components/responses/Conflict"
         422:
-          description: Unprocessable Entity
+          $ref: "#/components/responses/UnprocessableEntity"
         500:
-          description: Internal Server Error
+          $ref: "#/components/responses/InternalError"
     delete:
       parameters:
         - schema:
@@ -127,12 +127,58 @@ paths:
         204:
           description: Not content
         404:
-          description: Not found
+          $ref: "#/components/responses/NotFound"
 
 components:
+  responses:
+    NotFound:
+      description: Resource not found
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/ProblemDetail"
+    BadRequest:
+      description: Invalid request
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/ProblemDetail"
+    Conflict:
+      description: Conflict resource
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/ProblemDetail"
+    UnprocessableEntity:
+      description: Unprocessable entity
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/ProblemDetail"
+    InternalError:
+      description: Internal server error
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/ProblemDetail"
+    
   schemas:
     Customer:
       type: object
+      required:
+        - id
+        - firstName
+        - lastName
+        - email
+        - document
+        - phone
+        - birthDate
+        - loyaltyPoints
+        - registeredAt
+        - archivedAt
+        - promotionNotificationsAllowed
+        - archived
+        - address
       properties:
         id:
           type: string
@@ -152,7 +198,7 @@ components:
         phone:
           type: string
           example: "11211244545"
-        birthdate:
+        birthDate:
           type: string
           format: date
           example: "1991-07-05"
@@ -177,71 +223,154 @@ components:
           $ref: "#/components/schemas/Address"
     Address:
        type: object
+       required:
+         - street
+         - number
+         - complement
+         - neighborhood
+         - city
+         - state
+         - zipCode
        properties:
         street:
           type: string
           example: "Bourbon Street"
+          nullable: false
+          x-validation: "notBlank"
         number:
           type: string
           example: "2500"
+          nullable: false
+          x-validation: "notBlank"
         complement:
           type: string
           example: "apt 201"
+          nullable: true
         neighborhood:
           type: string
           example: "Norh Ville"
+          nullable: false
+          x-validation: "notBlank"
         city:
           type: string
           example: "Yostfort"
+          nullable: false
+          x-validation: "notBlank"
         state:
           type: string
           example: "South Carolina"
+          nullable: false
+          x-validation: "notBlank"
         zipCode:
           type: string
           example: "13232"
+          nullable: false
+          x-validation: "notBlank"
     CustomerInput:
       type: object
+      required:
+        - firstName
+        - lastName
+        - email
+        - documento
+        - phone
+        - birthDate
+        - promotionNotificationsAllowed
+        - address
       properties:
         firstName:
           type: string
           example: "John"
+          nullable: false
+          x-validation: "notBlank"
         lastName:
           type: string
           example: "Doe"
+          nullable: false
+          x-validation: "notBlank"
         email:
           type: string
           example: "johndoe@email.com"
+          nullable: false
+          x-validation: ["email", "notBlank"]
         document:
           type: string
           example: "12345"
+          nullable: false
+          x-validation: "notBlank"
         phone:
           type: string
           example: "11211244545"
-        birthdate:
+          nullable: false
+          x-validation: "notBlank"
+        birthDate:
           type: string
           format: date
           example: "1991-07-05"
+          nullable: false
+          x-validation: "pastDate"
         promotionNotificationsAllowed:
           type: boolean
           example: false
+          nullable: false
         address:
           $ref: "#/components/schemas/Address"
+          nullable: false
     CustomerUpdateInput:
       type: object
+      required:
+        - firstName
+        - lastName
+        - phone
+        - promotionNotificationsAllowed
+        - address
       properties:
         firstName:
           type: string
           example: "John"
+          nullable: false
+          x-validation: "notBlank"
         lastName:
           type: string
           example: "Doe"
+          nullable: false
+          x-validation: "notBlank"
         phone:
           type: string
           example: "11211244545"
+          nullable: false
+          x-validation: "notBlank"
         promotionNotificationsAllowed:
           type: boolean
           example: false
+          nullable: false
         address:
           $ref: "#/components/schemas/Address"
+    ProblemDetail:
+      type: object
+      required:
+        - status
+        - type
+      properties:
+        status:
+          type: integer
+          example: 400
+        type:
+          type: string
+          example: "/errors/invalid-data"
+        title:
+          type: string
+          example: Invalid fields
+        instance:
+          type: string
+          example: "/api/v1/customers"
+        detail:
+          type: string
+          example: "One or more fields are invalid"
+        fields:
+          type: object
+          description: Fields that caused the error
+
+
 
 
