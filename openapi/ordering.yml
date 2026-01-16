@@ -573,7 +573,7 @@ components:
           nullable: true
         neighborhood:
           type: string
-          example: "Norh Ville"
+          example: "North Ville"
           nullable: false
           x-validation: "notBlank"
         city:
