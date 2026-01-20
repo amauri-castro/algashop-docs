@@ -792,7 +792,7 @@ components:
           example: 400
         type:
           type: string
-          example: "/errors/invalid-data"
+          example: "/errors/invalid-fields"
         title:
           type: string
           example: Invalid fields
